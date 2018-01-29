@@ -1,0 +1,52 @@
+##################################################################################################################
+#
+#						Filename: README
+#					Description: Execution instructions 
+#
+#	TEAM 19:
+#       KRISHNAJA MENON ANILBABU 1212360810
+#	KELVIN THOMAS MATHEW 	1211037370
+#
+##################################################################################################################
+
+1) Place the following files from submission into a single folder in host PC
+	- Makefile
+	- delayLED.c (driver program)
+	- delayLED_usr_pgm.c (user program)
+	- gpiosysfs.sh (SYSFS INTERFACE BASH SCRIPT)
+	NOTE: The files are to be run on Intel-Galileo Board.
+
+2) Execute the commands as shown below in the above folder path to cross compile the code on PC
+
+	make clean
+	
+	make
+
+3) After successfull compilation, copy the following files to the Galileo board via scp
+	- delayLED.ko
+	- delayLED_usr_pgm.o
+	- gpiosysfs.sh
+
+e.g. sudo scp delayLED.ko root@192.168.1.5:/home/
+
+4) After all files have been copied to the board, give the following commands on screen terminal (board)
+	- ./gpiosysfs.sh
+	- insmod ./delayLED.ko
+	- chmod 777 /dev/delayLED
+
+5) To execute the user program, run the below code
+	- ./delay_usr_pgm.o
+
+Explaination:
+-------------
+Once the user program is run, there will be two options, 1 for custom pattern and 2 for predefined pattern,
+-When 1 is selected, will be prompted with two values,
+	- number of LEDS: specifies how many LEDs need to be lit
+	- LED pixel data: specifies the corresponding pixel GRB intensities
+number of LEDs is an integer value like 1,2,3,4,5,.....,16
+LED pixel data is the hexadecimal value of the pixel information. Since each LED has RGB componenet represented by a total of 24 bits(8 bits for each R,G,B). So each LED will have 6 hexadecimal values re[resenting the 24 bits of intensity. Please find below some example data.
+	- aabbcc (for 1 LED)
+	- ff000000ff000000ff (for 3 LED)
+-when 2 is selected, a custom circular pattern gets displayed for a short duration
+
+We read the LED data as hexadecimal values as a single string for all LEDs. This hexadecimal value is converted to binary string which consists of 24 bits for one LED corresponding to RGB. These bits are passed through GPIO12 serially. The 0 and 1 pulses are created as per the SPI requirements(Longer highs for 1, longers lows for 0). In order to switch the LEDs off, pass 0 to those LEDs and they would be switched off.
